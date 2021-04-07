@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Knygai</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+    margin-left: auto;
+ 	margin-right: auto;
+}
+table{
+	width: 50%;
+}
+.center{
+	  text-align: center;
+}
+th {background-color: coral;}
+td {background-color: #dfbf9f;}
+label, input { display:block; }
+	    input.text { margin-bottom:12px; width:95%; padding: .4em; }
+	    fieldset { padding:0; border:0; margin-top:25px; }
+	    h1 { font-size: 1.2em; margin: .6em 0; }
+	    div#users-contain { width: 350px; margin: 20px 0; }
+	    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+	    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+	    .ui-dialog .ui-state-error { padding: .3em; }
+	    .validateTips { border: 1px solid transparent; padding: 0.3em; }
+</style>	
+  	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  	<script>
+  		function addKnygas() {
+  		
+  			alert( "tuoj pridesim" );
+  			$( '#knyga-forma' ).submit();
+  			
+  		}
+  	
+  		$( document ).ready ( function() {
+  		
+		    dialog = $( "#dialog-form" ).dialog({
+		      autoOpen: false,
+		      height: 400,
+		      width: 350,
+		      modal: true,
+		      buttons: {
+		        "Saugoti": addKnygas,
+		        Cancel: function() {
+		          dialog.dialog( "close" );
+		        }
+		      },
+		      close: function() {
+		       //  form[ 0 ].reset();
+		        // allFields.removeClass( "ui-state-error" );
+		      }
+		    }); 
+		    
+		    $( "#new_knygas" ).button().on ( "click", function() {
+		    
+		      alert ( 'atidarom dialoga' );
+		      dialog.dialog( "open" );
+		    });
+		    	
+		     $( ".edit" ).each ( function() {
+		    
+		    	$( this ).click ( function() {
+		    	
+		    		id_knyga = $( this ).data ( 'el_id' );
+		    		
+					$.ajax({
+						 method: 'POST'
+				 		 , url: '/knygas'
+				 		 , data: {
+				 		 	id: id_knyga
+				 		 }
+					}).done( function( data ) {
+						
+						// alert ( "gauti duomenys: " + data );
+						if ( data != null ) {
+						
+							$( '#pav' ).val ( data.pav );
+							$( '#author' ).val ( data.author );
+							$( '#pages' ).val ( data.pages );
+							$( '#genre' ).val ( data.genre );				
+							$( '#id').val ( data.id );
+							$( '#salies_kodas' ).val ( data.salies_kodas );
+		      				dialog.dialog( "open" );								
+						}
+						console.log ( JSON.stringify ( data ) );
+				  	});			    		
+		    		
+		    	});	
+		    			    
+		    });
+		    
+		    $( ".delete" ).each ( function() {
+
+		    	$( this ).click ( function() {
+
+		    		id_knyga = $( this ).data ( 'delete_id' );
+
+					$.ajax({
+						 method: 'GET'
+				 		 , url: '/salinti-knyga'
+				 		 , data: {
+				 		 	id: id_knyga
+				 		 }
+					}).done( function( data ) {
+
+						if ( data != null ) {
+		
+							$( '#id').val ( data.id );
+		      			//	dialog.dialog( "open" );	
+		      			location.reload();						
+						}
+						console.log ( JSON.stringify ( data ) );
+				  	});			    		
+
+		    	});	
+		    	
+		    });
+		  }); 
+  	</script>	
+</head>
+<body>
+	<div class= "center">
+	<h3>Knygos</h3>
+	</div>
+
+	<div id="dialog-form" title="Knygas">
+  		<p class="validateTips">All form fields are required.</p>	
+		<form id="knyga-forma" method="POST" action="">
+			  <fieldset>
+				<label for="pav">Knygas</label>
+				<input type="text" id="pav" name="pav" value="" class="text ui-widget-content ui-corner-all">
+				<label for="author">author</label>		
+				<input type="text" id="author" name="author" value="" class="text ui-widget-content ui-corner-all">
+				<label for="pages">pages</label>
+				<input type="text" id="pages" name="pages" value="0" class="text ui-widget-content ui-corner-all">
+				<label for="genre">genre</label>		
+				<input type="text" id="genre" name="genre" value="0.0" class="text ui-widget-content ui-corner-all">
+				<label for="salies_kodas">Šalies kodas</label>		
+				<input type="text" id="salies_kodas" name="salies_kodas" value="" class="text ui-widget-content ui-corner-all">
+				<input type="hidden" id="id" name="id" value="0">		
+				<input type="hidden" id="saugoti" name="saugoti" value="saugoti">
+			    <!-- Allow form submission with keyboard without duplicating the dialog button -->
+			    <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">				
+			  </fieldset>
+		</form>	
+	</div>	
+	<table>
+	<th>Pavadinimas</th>
+		<th>Author</th>
+		<th>Pages</th>
+		<th>Genre</th>
+		<tr th:each="knygas : ${knygai}">
+			<td th:text="${knygas.getpav()}"></td>		
+			<td th:text="${knygas.getauthor()}"></td>	
+			<td th:text="${knygas.getpages()}"></td>
+			<td th:text="${knygas.getgenre()}"></td>
+			<td th:text="${knygas.getSalies_kodas()}"></td>	
+			<td th:text="${knygas.getSalis()} == null ? '???' : ${knygas.getSalis().getSalis()}"></td>	
+			<td><input type="button" class="edit" th:attr="data-el_id=${knygas.getId()}" value="&#9998;"></td>	
+			<td><input type="button" class="delete" th:attr="data-delete_id=${knygas.getId()}" value="&#10006;"></td>				
+		</tr>
+	</table>	
+	<div class= "center">
+	<br>
+	<input type="button" id="new_knygas" value="Naujas knygas">
+	</div>	
+</body>
+</html>

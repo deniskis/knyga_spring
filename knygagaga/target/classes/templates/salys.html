@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Miestai</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<style>
+	    label, input { display:block; }
+	    input.text { margin-bottom:12px; width:95%; padding: .4em; }
+	    fieldset { padding:0; border:0; margin-top:25px; }
+	    h1 { font-size: 1.2em; margin: .6em 0; }
+	    div#users-contain { width: 350px; margin: 20px 0; }
+	    div#users-contain table { margin: 1em 0; border-collapse: collapse; width: 100%; }
+	    div#users-contain table td, div#users-contain table th { border: 1px solid #eee; padding: .6em 10px; text-align: left; }
+	    .ui-dialog .ui-state-error { padding: .3em; }
+	    .validateTips { border: 1px solid transparent; padding: 0.3em; }
+	  </style>	
+  	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  	<script>
+  		/*
+  		function addSalis() {
+  		
+  			alert( "tuoj pridesim" );
+  			$( '#miesto-forma' ).submit();	
+  		}
+  	
+  		$( document ).ready ( function() {
+  		
+		    dialog = $( "#dialog-form" ).dialog({
+		      autoOpen: false,
+		      height: 400,
+		      width: 350,
+		      modal: true,
+		      buttons: {
+		        "Saugoti": addMiestas,
+		        Cancel: function() {
+		          dialog.dialog( "close" );
+		        }
+		      },
+		      close: function() {
+		       //  form[ 0 ].reset();
+		        // allFields.removeClass( "ui-state-error" );
+		      }
+		    }); 
+		    
+		    $( "#new_miestas" ).button().on ( "click", function() {
+		    
+		      alert ( 'atidarom dialoga' );
+		      dialog.dialog( "open" );
+		    });
+		    	
+		    $( ".edit" ).each ( function() {
+		    
+		    	$( this ).click ( function() {
+		    	
+		    		id_knyga = $( this ).data ( 'el_id' );
+		    		
+					$.ajax({
+						 method: 'POST'
+				 		 , url: '/miestas'
+				 		 , data: {
+				 		 	id: id_knyga
+				 		 }
+					}).done( function( data ) {
+						
+						// alert ( "gauti duomenys: " + data );
+						if ( data != null ) {
+						
+							$( '#id').val ( data.id );
+							$( '#pav' ).val ( data.pav );
+							$( '#author' ).val ( data.author );
+							$( '#pages' ).val ( data.pages );
+							$( '#genre' ).val ( data.genre );					
+							$( '#salies_kodas' ).val ( data.salies_kodas );
+							
+		      				dialog.dialog( "open" );							
+						}
+						console.log ( JSON.stringify ( data ) );
+				  	});			    		
+		    		
+		    	});	
+		    			    
+		    });
+		  }); 
+		 */
+  	</script>	
+</head>
+<body>
+	<h3>Šalys</h3>
+	<input type="button" id="salis" value="Nauja šalis">
+	<div id="dialog-form" title="Šalis">
+  		<p class="validateTips">All form fields are required.</p>	
+		<form id="miesto-forma" method="POST" action="">
+			  <fieldset>
+				<label for="pav">Šalis</label>
+				<input type="text" id="pav" name="pav" value="" class="text ui-widget-content ui-corner-all">
+				<label for="salies_kodas">Šalies kodas</label>		
+				<input type="text" id="salies_kodas" name="salies_kodas" value="" class="text ui-widget-content ui-corner-all">		
+				<input type="hidden" id="saugoti" name="saugoti" value="saugoti">
+			    <!-- Allow form submission with keyboard without duplicating the dialog button -->
+			    <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">				
+			  </fieldset>
+		</form>	
+	</div>	
+	<table>
+		<tr th:each="salis : ${salys}">
+			<td th:text="${salis.getSalis()}"></td>
+			<td th:text="${salis.getSalies_kodas()}"></td>
+			<td><span th:each="miestas : ${salis.getMiestas()}" th:text="|${miestas.getPavadinimas()}, |"></span></td>			
+			<td><input type="button" class="edit" th:attr="data-el_id=${salis.getId()}" value="redaguoti"></td>				
+		</tr>
+	</table>	
+</body>
+</html>
